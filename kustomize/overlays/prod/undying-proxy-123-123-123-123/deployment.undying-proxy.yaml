@@ -1,0 +1,12 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: undying-proxy
+  namespace: undying-proxy
+spec:
+  template:
+    spec:
+      containers:
+      - name: undying-proxy
+        image: my-prod-registry.io/undying-proxy:v0.1.0

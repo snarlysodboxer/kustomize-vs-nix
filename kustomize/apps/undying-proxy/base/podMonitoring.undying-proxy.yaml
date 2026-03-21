@@ -1,0 +1,15 @@
+---
+apiVersion: monitoring.googleapis.com/v1
+kind: PodMonitoring
+metadata:
+  name: undying-proxy
+  namespace: undying-proxy
+  labels:
+    app: undying-proxy
+spec:
+  selector:
+    matchLabels:
+      app: undying-proxy
+  endpoints:
+  - port: metrics
+    interval: 30s

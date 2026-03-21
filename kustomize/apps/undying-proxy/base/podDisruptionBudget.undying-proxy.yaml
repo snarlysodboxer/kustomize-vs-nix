@@ -1,0 +1,13 @@
+---
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: undying-proxy
+  namespace: undying-proxy
+  labels:
+    app: undying-proxy
+spec:
+  minAvailable: 2
+  selector:
+    matchLabels:
+      app: undying-proxy

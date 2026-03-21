@@ -1,0 +1,91 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: undying-proxy
+  namespace: undying-proxy
+  labels:
+    app: undying-proxy
+  annotations:
+    cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+spec:
+  replicas: 3
+  selector:
+    matchLabels:
+      app: undying-proxy
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 1
+      maxSurge: 2
+  template:
+    metadata:
+      labels:
+        app: undying-proxy
+      annotations:
+        kubectl.kubernetes.io/default-container: manager
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "false"
+    spec:
+      serviceAccountName: undying-proxy
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+      - name: undying-proxy
+        image: changeme/undying-proxy:v0.0.0
+        imagePullPolicy: IfNotPresent
+        command:
+        - /manager
+        args:
+        - --operator-namespace=$(OPERATOR_NAMESPACE)
+        - --tcp-service-to-manage=undying-proxy-tcp
+        - --udp-service-to-manage=undying-proxy-udp
+        - --metrics-authed=false
+        - --metrics-secure=false
+        - --metrics-bind-address=:8080
+        - --health-probe-bind-address=:8081
+        - --zap-devel=false
+        - --zap-stacktrace-level=panic  # `info`, `error`, `panic`
+        env:
+        # namespace to watch for UnDyingProxy objects
+        - name: OPERATOR_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        ports:
+        - name: metrics
+          containerPort: 8080
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 0.4
+            memory: 128Mi
+          limits:
+            cpu: 1.5
+            memory: 256Mi
+        livenessProbe:
+          periodSeconds: 20
+          initialDelaySeconds: 15
+          httpGet:
+            port: 8081
+            path: /healthz
+        readinessProbe:
+          periodSeconds: 10
+          initialDelaySeconds: 5
+          httpGet:
+            port: 8081
+            path: /readyz
+        securityContext:
+          allowPrivilegeEscalation: false
+          capabilities:
+            drop:
+            - ALL
+      terminationGracePeriodSeconds: 10
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+          - topologyKey: kubernetes.io/hostname
+            labelSelector:
+              matchLabels:
+                app: undying-proxy

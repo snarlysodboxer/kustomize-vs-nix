@@ -1,0 +1,27 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: undying-proxy-udp
+  namespace: undying-proxy
+  labels:
+    app: undying-proxy
+spec:
+  type: LoadBalancer
+  loadBalancerIP: changeme
+  # sessionAffinity: ClientIP
+  selector:
+    app: undying-proxy
+  externalTrafficPolicy: Local
+  ports:
+  # NOTE: this Service's `ports` section is managed by this operator by default.
+  #   The rest of the Service's configuration must be managed by you.
+  #   If using ArgoCD or similar, you'll want to IgnoreDifferences on the `ports` section.
+  - name: lowest-port
+    port: 3000
+    targetPort: 3000
+    protocol: UDP
+  - name: highest-port
+    port: 29999
+    targetPort: 29999
+    protocol: UDP

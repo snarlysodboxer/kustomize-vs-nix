@@ -1,0 +1,30 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: undying-proxy
+  namespace: undying-proxy
+spec:
+  template:
+    spec:
+      containers:
+      - name: undying-proxy
+        image: my-dev-registry.io/undying-proxy:vlatest
+        imagePullPolicy: Always
+        args:
+        - --operator-namespace=$(OPERATOR_NAMESPACE)
+        - --tcp-service-to-manage=undying-proxy-tcp
+        - --udp-service-to-manage=undying-proxy-udp
+        - --metrics-authed=false
+        - --metrics-secure=false
+        - --metrics-bind-address=:8080
+        - --health-probe-bind-address=:8081
+        - --zap-devel=true
+        - --zap-stacktrace-level=debug
+        resources:
+          requests:
+            cpu: 500m
+            memory: 256Mi
+          limits:
+            cpu: "1"
+            memory: 1.5Gi

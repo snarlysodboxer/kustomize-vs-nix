@@ -1,0 +1,112 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  name: undyingproxies.proxy.sfact.io
+  labels:
+    app: undying-proxy
+  annotations:
+    controller-gen.kubebuilder.io/version: v0.15.0
+spec:
+  group: proxy.sfact.io
+  names:
+    kind: UnDyingProxy
+    listKind: UnDyingProxyList
+    plural: undyingproxies
+    singular: undyingproxy
+  scope: Namespaced
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .status.ready
+      name: Ready
+      type: boolean
+    - jsonPath: .spec.udp.listenPort
+      name: ListenUDP
+      type: number
+    - jsonPath: .spec.tcp.listenPort
+      name: ListenTCP
+      type: number
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: UnDyingProxy is the Schema for the undyingproxies API
+        properties:
+          apiVersion:
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
+            type: string
+          kind:
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: UnDyingProxySpec defines the desired state of UnDyingProxy
+            properties:
+              tcp:
+                description: TCP defines a TCP port forwarder
+                properties:
+                  listenPort:
+                    description: ListenPort is the port to listen on
+                    type: integer
+                  targetHost:
+                    description: TargetHost is the address to forward to, IP or DNS
+                      resolvable name
+                    type: string
+                  targetPort:
+                    description: TargetPort is the port to forward to
+                    type: integer
+                required:
+                - listenPort
+                - targetHost
+                - targetPort
+                type: object
+              udp:
+                description: TODO make these immutable?, better yet, support mutability
+                properties:
+                  listenPort:
+                    description: ListenPort is the port to listen on
+                    type: integer
+                  readTimeoutSeconds:
+                    description: ReadTimeoutSeconds is the timeout for reading from
+                      the client and target. Defaults to 30 seconds.
+                    type: integer
+                  targetHost:
+                    description: TargetHost is the address to forward to, IP or DNS
+                      resolvable name
+                    type: string
+                  targetPort:
+                    description: TargetPort is the port to forward to
+                    type: integer
+                  writeTimeoutSeconds:
+                    description: WriteTimeoutSeconds is the timeout for writing to
+                      the client and target. Defaults to 5 seconds.
+                    type: integer
+                required:
+                - listenPort
+                - targetHost
+                - targetPort
+                type: object
+            type: object
+          status:
+            description: UnDyingProxyStatus defines the observed state of UnDyingProxy
+            properties:
+              ready:
+                description: Ready is true when the proxy is ready to accept connections
+                type: boolean
+            required:
+            - ready
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

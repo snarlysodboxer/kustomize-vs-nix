@@ -1,0 +1,53 @@
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: undying-proxy
+  namespace: undying-proxy
+  labels:
+    app: undying-proxy
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - services/status
+  verbs:
+  - get
+- apiGroups:
+  - proxy.sfact.io
+  resources:
+  - undyingproxies
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - proxy.sfact.io
+  resources:
+  - undyingproxies/finalizers
+  verbs:
+  - update
+- apiGroups:
+  - proxy.sfact.io
+  resources:
+  - undyingproxies/status
+  verbs:
+  - get
+  - patch
+  - update

@@ -1,0 +1,10 @@
+---
+apiVersion: builtin
+kind: LabelTransformer
+metadata:
+  name: add-argocd-app-label
+labels:
+  app.kubernetes.io/instance: undying-proxy-345-345-345-345
+fieldSpecs:
+- path: metadata/labels
+  create: true

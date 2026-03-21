@@ -1,0 +1,8 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: undying-proxy-tcp
+  namespace: undying-proxy
+spec:
+  loadBalancerIP: 345.345.345.345
