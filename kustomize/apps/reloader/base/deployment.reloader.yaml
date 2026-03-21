@@ -1,0 +1,68 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: reloader
+  namespace: reloader
+  labels:
+    app: reloader
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: reloader
+  template:
+    metadata:
+      labels:
+        app: reloader
+    spec:
+      containers:
+      - name: reloader
+        image: ghcr.io/stakater/reloader:v1.0.121
+        imagePullPolicy: IfNotPresent
+        args:
+        - --log-format=json
+        - --reload-strategy=annotations
+        env:
+        - name: GOMAXPROCS
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.cpu
+        - name: GOMEMLIMIT
+          valueFrom:
+            resourceFieldRef:
+              resource: limits.memory
+        ports:
+        - name: http
+          containerPort: 9090
+        livenessProbe:
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
+          initialDelaySeconds: 10
+          httpGet:
+            port: http
+            path: /metrics
+        readinessProbe:
+          periodSeconds: 10
+          timeoutSeconds: 5
+          successThreshold: 1
+          failureThreshold: 5
+          initialDelaySeconds: 10
+          httpGet:
+            port: http
+            path: /metrics
+        resources:
+          requests:
+            cpu: 10m
+            memory: 128Mi
+          limits:
+            cpu: "1"
+            memory: 128Mi
+      serviceAccountName: reloader
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 65534
+        seccompProfile:
+          type: RuntimeDefault

@@ -1,0 +1,17 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: reloader
+  namespace: reloader
+  labels:
+    app: reloader
+spec:
+  type: ClusterIP
+  selector:
+    app: reloader
+  ports:
+  - name: metrics
+    port: 9090
+    targetPort: http
+    protocol: TCP

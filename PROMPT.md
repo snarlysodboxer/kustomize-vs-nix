@@ -8,6 +8,8 @@ As mentioned in the readme, it would be nice to have nix build commands that out
 
 Please follow Nix best practices. Use the nixos and other MCP servers and internet as needed. Please think carefully about the best design for the Nix setup, and create a plan and let me review it. After my approval and perhaps some discussion, follow that plan and write the actual Nix code.
 
+We want a native Nix implementation that achieves the same end result (identical YAML output) but using idiomatic Nix patterns, and still allows enabling/disabling various patches, etc.
+
 Please also create a Nix dev shell with the latest versions of `kustomize`, `kubectl`, `kfilt`, `icdiff`, and the Nix linter in it. If you want to add `yq` and/or similar for development, that's fine too. - It's probably best to do this first thing, to then have the tools for development and comparison.
 
 DO NOT run `kubectl` in any way or form. Simply redirect the output to files for comparison.
