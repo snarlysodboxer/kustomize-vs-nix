@@ -52,3 +52,6 @@ kustomize build kustomize/overlays/staging2/reloader > kustomize.yaml
 nix build .#staging2_reloader --out-link nix.yaml
 icdiff kustomize.yaml nix.yaml | less -R
 ```
+
+## My thoughts/conclusions
+* I asked Claude about the results and my opinions and [recorded that here](./convo-with-claude-about-results.md).
