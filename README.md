@@ -2,7 +2,7 @@
 
 _I'm familiar with Kustomize for managing Kubernetes objects. I want to see what it would look like to use Nix to accomplish the same thing._
 
-## Notes
+## Overview
 * My starting place is some example Kustomize configs, which I would use (or more likely have ArgoCD use) like the following:
     * Deploy undying-proxy to prod:
         `kustomize build kustomize/overlays/prod/undying-proxy-123-123-123-123 | kubectl apply -f -`
@@ -14,3 +14,41 @@ _I'm familiar with Kustomize for managing Kubernetes objects. I want to see what
 * It should be noted I am not yet a Nix expert, and that I'm having Claude help me write the Nix.
 * It would be nice if we could keep `nix build ...` logs/errors directed to stderr, while redirecting the resulting YAML to stdout, so that we can manually examine it, as well as pipe it into kubectl apply like we do with Kustomize.
 
+To get a quick idea of what's different between these three environments, start by looking in the overlay directories at the `<overlay>/<app>/kustomization.yaml` file.
+
+## Nix Implementation
+
+* The Nix implementation is in `flake.nix`, `lib/`, and `apps/`. Each app defines its resources as Nix attrsets, environments compose them with shared components.
+* The outputs are functionally equivalent. Minor differences in YAML formatting (multi-line strings, numeric quoting) don't affect Kubernetes.
+
+### Available targets
+* prod_undying-proxy, staging1_undying-proxy, staging2_undying-proxy,
+* prod_reloader, staging1_reloader, staging2_reloader
+
+## Comparing Outputs
+
+```bash
+kustomize build kustomize/overlays/prod/undying-proxy-123-123-123-123 > kustomize.yaml
+nix build .#prod_undying-proxy --out-link nix.yaml
+icdiff kustomize.yaml nix.yaml | less -R
+
+kustomize build kustomize/overlays/staging1/undying-proxy-234-234-234-234 > kustomize.yaml
+nix build .#staging1_undying-proxy --out-link nix.yaml
+icdiff kustomize.yaml nix.yaml | less -R
+
+kustomize build kustomize/overlays/staging2/undying-proxy-345-345-345-345 > kustomize.yaml
+nix build .#staging2_undying-proxy --out-link nix.yaml
+icdiff kustomize.yaml nix.yaml | less -R
+
+kustomize build kustomize/overlays/prod/reloader > kustomize.yaml
+nix build .#prod_reloader --out-link nix.yaml
+icdiff kustomize.yaml nix.yaml | less -R
+
+kustomize build kustomize/overlays/staging1/reloader > kustomize.yaml
+nix build .#staging1_reloader --out-link nix.yaml
+icdiff kustomize.yaml nix.yaml | less -R
+
+kustomize build kustomize/overlays/staging2/reloader > kustomize.yaml
+nix build .#staging2_reloader --out-link nix.yaml
+icdiff kustomize.yaml nix.yaml | less -R
+```
